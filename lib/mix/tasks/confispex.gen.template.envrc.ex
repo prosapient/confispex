@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
 
   ## Examples
 
-      mix confispex.gen.envrc_template --output=.envrc --schema=MyRuntimeConfigSchema
+      mix do app.start, confispex.gen.envrc_template --output=.envrc --schema=MyRuntimeConfigSchema
   """
 
   def run(args) do
@@ -38,13 +38,18 @@ defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
                   ""
               end
 
-            prefix = if group_name in List.wrap(definition[:required]), do: "", else: "# "
-
-            value =
+            {comment_status, value} =
               case definition do
-                %{default: default} -> inspect(default)
-                %{default_lazy: callback} -> context |> callback.() |> inspect()
-                _ -> ""
+                %{template_value_generator: callback} -> {:uncommented, callback.()}
+                %{default: default} -> {:commented, inspect(default)}
+                %{default_lazy: callback} -> {:commented, context |> callback.() |> inspect()}
+                _ -> {:uncommented, ""}
+              end
+
+            prefix =
+              case comment_status do
+                :uncommented -> ""
+                :commented -> "# "
               end
 
             [doc, prefix, "export ", variable_name, "=", value, "\n"] |> to_string()
