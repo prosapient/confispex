@@ -40,10 +40,24 @@ defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
 
             {comment_status, value} =
               case definition do
-                %{template_value_generator: callback} -> {:uncommented, callback.()}
-                %{default: default} -> {:commented, inspect(default)}
-                %{default_lazy: callback} -> {:commented, context |> callback.() |> inspect()}
-                _ -> {:uncommented, ""}
+                %{template_value_generator: callback} ->
+                  {:uncommented, callback.()}
+
+                %{default: default} ->
+                  {:commented, inspect(default)}
+
+                %{default_lazy: callback} ->
+                  {:commented, context |> callback.() |> inspect()}
+
+                definition ->
+                  comment_status =
+                    if group_name in List.wrap(definition[:required]) do
+                      :uncommented
+                    else
+                      :commented
+                    end
+
+                  {comment_status, ""}
               end
 
             prefix =
@@ -58,6 +72,14 @@ defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
       end)
       |> Enum.intersperse("\n")
 
-    File.write!(output_path, iodata)
+    if File.exists?(output_path) do
+      result = IO.gets("File #{output_path} exists. Overwrite? [y/n] ")
+
+      if String.downcase(String.trim(result)) == "y" do
+        File.write!(output_path, iodata)
+      else
+        IO.puts("Terminated")
+      end
+    end
   end
 end
