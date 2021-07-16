@@ -80,6 +80,8 @@ defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
       else
         IO.puts("Terminated")
       end
+    else
+      File.write!(output_path, iodata)
     end
   end
 end
