@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
 
   ## Examples
 
-      mix do app.start, confispex.gen.envrc_template --output=.envrc --schema=MyRuntimeConfigSchema
+      mix do app.start --no-start, confispex.gen.envrc_template --output=.envrc --schema=MyRuntimeConfigSchema
   """
 
   def run(args) do
