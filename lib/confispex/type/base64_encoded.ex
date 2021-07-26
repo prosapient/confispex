@@ -2,11 +2,11 @@ defmodule Confispex.Type.Base64Encoded do
   @moduledoc """
   A type for base64 encoded values.
 
-  Decodes base64 encoded string into a string.
+  Decodes base64 encoded string.
 
   ### Options
 
-  * `:of` - `Confispex.Type.String` is used by default.  Can be used any other type according to
+  * `:of` - `Confispex.Type.String` is used by default. Other types can be used as well according to
   `t:Confispex.Type.type_reference/0`
   """
   @behaviour Confispex.Type
