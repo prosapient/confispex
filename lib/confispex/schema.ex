@@ -68,7 +68,7 @@ defmodule Confispex.Schema do
   * `:groups` - a list of groups which are affected by variable.
   * `:doc` - a description about variable, shown in generated `.envrc` file.
   * `:default` - default value. Must be set in raw format. Raw format was choosen to populate `.envrc` file with default values.
-  * `:defaut_lazy` - default value based on given context. Useful when default value must be different for different environments. Cannot be used alongside with `:default` parameter.
+  * `:defaut_lazy` - default value based on given context. Useful when default value must be different for different environments. Cannot be used alongside with `:default` parameter. If function returns `nil`, then value is required.
   * `:template_value_generator` - a function that is used in `confispex.gen.envrc_template` mix task to generate a value for a variable. Such value will always be uncommented even if it is not required. This is useful for variables like "SECRET_KEY_BASE" which should be generated only once.
   * `:required` - a list of groups in which variable is required. When all required variables of the group are cast successfully, then the group is considered as ready for using.
   * `:context` - specifies context in which variable is used.
@@ -79,7 +79,8 @@ defmodule Confispex.Schema do
           required(:groups) => [atom()],
           optional(:doc) => String.t(),
           optional(:default) => String.t(),
-          optional(:default_lazy) => (context :: map() -> String.t()),
+          optional(:default_lazy) => (context :: map() -> String.t() | nil),
+          optional(:template_value_generator) => (() -> String.t()),
           optional(:required) => [atom()],
           optional(:context) => [{atom(), atom()}],
           optional(:aliases) => [variable_name()]
@@ -114,7 +115,7 @@ defmodule Confispex.Schema do
       )
 
       assert(
-        is_nil(spec[:default]) or is_nil(spec[:default_lazy]) or is_nil(spec[:required]),
+        is_nil(spec[:required]) or (is_nil(spec[:default]) and is_nil(spec[:default_lazy])),
         "param :default or :default_lazy cannot be used with :required",
         variable_name
       )
@@ -132,8 +133,16 @@ defmodule Confispex.Schema do
       )
 
       assert(
-        not Map.has_key?(spec, :template_value_generator) or is_function(spec.template_value_generator, 0),
+        not Map.has_key?(spec, :template_value_generator) or
+          is_function(spec.template_value_generator, 0),
         "param :template_value_generator must be a function with arity 0",
+        variable_name
+      )
+
+      assert(
+        not Map.has_key?(spec, :default_lazy) or
+          is_function(spec.default_lazy, 1),
+        "param :default_lazy must be a function with arity 1",
         variable_name
       )
     end)

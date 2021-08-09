@@ -113,8 +113,7 @@ defmodule Confispex.TypeTest do
     end
 
     test "base64 encoded string" do
-      assert {:error, details} =
-               Confispex.Type.cast("certificate", Confispex.Type.Base64Encoded)
+      assert {:error, details} = Confispex.Type.cast("certificate", Confispex.Type.Base64Encoded)
 
       assert details ==
                {"certificate", Confispex.Type.Base64Encoded,

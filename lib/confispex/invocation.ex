@@ -88,6 +88,13 @@ defmodule Confispex.Invocation do
 
   defp find_value_in_aliases(_variables_store, _variable_schema), do: nil
 
+  defp eval_default_lazy!(context, callback) do
+    case callback.(context) do
+      nil -> :error
+      value when is_binary(value) -> {:ok, value}
+    end
+  end
+
   defp set_default_value(invocation, variable_schema, context) do
     variable_schema
     |> Map.fetch(:default)
@@ -97,7 +104,7 @@ defmodule Confispex.Invocation do
 
       :error ->
         case Map.fetch(variable_schema, :default_lazy) do
-          {:ok, callback} -> {:ok, callback.(context)}
+          {:ok, callback} -> eval_default_lazy!(context, callback)
           :error -> :error
         end
     end

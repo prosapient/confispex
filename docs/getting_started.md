@@ -5,7 +5,7 @@ The package can be installed by adding `confispex` to your list of dependencies 
 ```elixir
 def deps do
   [
-    {:confispex, "~> 0.3"}
+    {:confispex, "~> 0.5"}
   ]
 end
 ```
