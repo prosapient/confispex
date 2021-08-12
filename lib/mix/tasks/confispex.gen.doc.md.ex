@@ -75,21 +75,11 @@ defmodule Mix.Tasks.Confispex.Gen.Doc.Md do
           |> as_table(["Name", "Required", "Default", "Description"])
         ]
       end)
-      |> Enum.intersperse("\n")
+      |> Enum.intersperse("\n\n")
 
     iodata = ["# Variables (#{stringify_context(context)})\n\n", iodata]
 
-    if File.exists?(output_path) do
-      result = IO.gets("File #{output_path} exists. Overwrite? [y/n] ")
-
-      if String.downcase(String.trim(result)) == "y" do
-        File.write!(output_path, iodata)
-      else
-        IO.puts("Terminated")
-      end
-    else
-      File.write!(output_path, iodata)
-    end
+    File.write!(output_path, iodata)
   end
 
   defp stringify_context(context) do
