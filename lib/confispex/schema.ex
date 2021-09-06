@@ -70,7 +70,7 @@ defmodule Confispex.Schema do
   * `:default` - default value. Must be set in raw format. Raw format was choosen to populate `.envrc` file with default values.
   * `:defaut_lazy` - default value based on given context. Useful when default value must be different for different environments. Cannot be used alongside with `:default` parameter. Return `nil` if default value should be ignored.
   * `:template_value_generator` - a function that is used in `confispex.gen.envrc_template` mix task to generate a value for a variable. Such value will always be uncommented even if it is not required. This is useful for variables like "SECRET_KEY_BASE" which should be generated only once.
-  * `:required` - a list of groups in which variable is required. When all required variables of the group are cast successfully, then the group is considered as ready for using.
+  * `:required` - a list of groups or a function that returns a list of groups in which variable is required. When all required variables of the group are cast successfully, then the group is considered as ready for using.
   * `:context` - specifies context in which variable is used.
   * `:aliases` - a list of alias names.
   """
