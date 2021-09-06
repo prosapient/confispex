@@ -79,9 +79,9 @@ defmodule Confispex.Schema do
           required(:groups) => [atom()],
           optional(:doc) => String.t(),
           optional(:default) => String.t(),
-          optional(:default_lazy) => (context :: map() -> String.t() | nil),
+          optional(:default_lazy) => (Confispex.context() -> String.t() | nil),
           optional(:template_value_generator) => (() -> String.t()),
-          optional(:required) => [atom()],
+          optional(:required) => [atom()] | (Confispex.context() -> [atom()]),
           optional(:context) => [{atom(), atom()}],
           optional(:aliases) => [variable_name()]
         }
@@ -115,14 +115,15 @@ defmodule Confispex.Schema do
       )
 
       assert(
-        is_nil(spec[:required]) or (is_nil(spec[:default]) and is_nil(spec[:default_lazy])),
-        "param :default or :default_lazy cannot be used with :required",
+        is_nil(spec[:required]) or is_nil(spec[:default]),
+        "param :default cannot be used with :required",
         variable_name
       )
 
       assert(
-        not Map.has_key?(spec, :required) or is_list(spec.required),
-        "param :required must be a list",
+        not Map.has_key?(spec, :required) or is_list(spec.required) or
+          is_function(spec.required, 1),
+        "param :required must be a list or function with arity 1",
         variable_name
       )
 
@@ -153,6 +154,15 @@ defmodule Confispex.Schema do
       :ok
     else
       raise ArgumentError, "Assertion failed for #{variable_name}: " <> msg
+    end
+  end
+
+  @doc false
+  def variable_required?(spec, group, context) do
+    case spec[:required] do
+      nil -> false
+      required when is_list(required) -> group in required
+      required when is_function(required, 1) -> group in required.(context)
     end
   end
 

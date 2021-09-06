@@ -4,7 +4,7 @@ defmodule Confispex.MixProject do
   def project do
     [
       app: :confispex,
-      version: "0.5.1",
+      version: "1.0.0",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       description: description(),

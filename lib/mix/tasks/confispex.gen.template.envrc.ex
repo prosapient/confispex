@@ -27,7 +27,7 @@ defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
           variables
           |> Enum.sort_by(fn {variable_name, definition} ->
             # required first, then sort by name
-            {group_name not in List.wrap(definition[:required]), variable_name}
+            {not Confispex.Schema.variable_required?(definition, group_name, context), variable_name}
           end)
           |> Enum.map(fn {variable_name, definition} ->
             doc =
@@ -52,7 +52,7 @@ defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
 
                 definition ->
                   comment_status =
-                    if group_name in List.wrap(definition[:required]) do
+                    if Confispex.Schema.variable_required?(definition, group_name, context) do
                       :uncommented
                     else
                       :commented

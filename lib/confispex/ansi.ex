@@ -11,7 +11,7 @@ defmodule Confispex.ANSI do
       variables_schema
       |> Confispex.Schema.grouped_variables(context)
       |> Enum.map(fn {group, variables} ->
-        {group, group_status(variables, group, invocations), variables}
+        {group, group_status(variables, group, invocations, context), variables}
       end)
       |> Enum.sort_by(fn {group, group_status, _variables} ->
         {group_status_priority(group_status), group}
@@ -29,7 +29,8 @@ defmodule Confispex.ANSI do
           "\n",
           variables
           |> Enum.sort_by(fn {variable_name, spec} ->
-            {group not in List.wrap(spec[:required]), variable_name}
+            # required first, then sort by name
+            {not Confispex.Schema.variable_required?(spec, group, context), variable_name}
           end)
           |> Enum.map(
             &format_variable_state(
@@ -70,9 +71,11 @@ defmodule Confispex.ANSI do
   defp group_status_color(:requirements_not_met), do: :red
   defp group_status_color(:no_required_variables), do: :blue
 
-  defp group_status(variables, group, invocations) do
+  defp group_status(variables, group, invocations, context) do
     variables
-    |> Enum.filter(fn {_variable_name, spec} -> group in List.wrap(spec[:required]) end)
+    |> Enum.filter(fn {_variable_name, spec} ->
+      Confispex.Schema.variable_required?(spec, group, context)
+    end)
     |> case do
       [] ->
         :no_required_variables

@@ -48,7 +48,7 @@ defmodule Confispex.Server do
       state.variables_schema
       |> Confispex.Schema.variables_in_context(state.context)
       |> Enum.filter(fn {_variable_name, spec} ->
-        is_list(spec[:required]) and group_name in spec[:required]
+        Confispex.Schema.variable_required?(spec, group_name, state.context)
       end)
       |> checker.(fn {variable_name, _spec} ->
         match?({:ok, _}, Access.fetch(state.variables_store, variable_name))
