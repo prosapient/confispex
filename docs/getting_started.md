@@ -5,7 +5,7 @@ The package can be installed by adding `confispex` to your list of dependencies 
 ```elixir
 def deps do
   [
-    {:confispex, "~> 0.5"}
+    {:confispex, "~> 1.0"}
   ]
 end
 ```
@@ -52,12 +52,10 @@ Put the following content to `config/runtime.exs`:
 ```elixir
 import Config
 
-# setup confispex
-{:ok, _} = Application.ensure_all_started(:confispex)
-
-Confispex.set_schema(MyApp.RuntimeConfigSchema)
-Confispex.set_context(%{env: config_env(), target: config_target()})
-Confispex.set_new_store(System.get_env())
+Confispex.init(%{
+  schema: MyApp.RuntimeConfigSchema,
+  context: %{env: config_env(), target: config_target()}
+})
 
 # application config
 config :my_app,
@@ -82,8 +80,8 @@ you'll see the following report
 ![state 1](images/state1.png)
 
 ### Group colors
-* green - group have required variables and they are present and valid. Such color is not present on a screenshot above, we'll make green group later.
-* red - group have requried variables, they aren't present or they are invalid
+* green - group has required variables and they are present and valid. Such color is not present on a screenshot above, we'll make green group later.
+* red - group has requried variables, they aren't present or they are invalid.
 * blue - group doesn't have required variables and always functional, because there is always a default value to which system can fall back.
 
 There are 3 groups in our example `:landing_page`, `:misc` and `:primary_db`:

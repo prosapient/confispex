@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Confispex.Gen.Doc.Md do
 
   ## Examples
 
-      mix do app.start --no-start, confispex.gen.doc.md --output=RUNTIME_ENV_PROD.md --schema=MyRuntimeConfigSchema --env=prod --target=abc
+      $ mix confispex.gen.doc.md --output=RUNTIME_ENV_PROD.md --schema=MyRuntimeConfigSchema --env=prod --target=abc
 
   ## Example of generated markdown
 
@@ -43,12 +43,12 @@ defmodule Mix.Tasks.Confispex.Gen.Doc.Md do
             aliases: aliases(),
             docs: [
               extras: [
-                ".tmp/RUNTIME_ENV_PROD.md": [title: "prod"],
-                ".tmp/RUNTIME_ENV_DEV.md": [title: "dev"],
-                ".tmp/RUNTIME_ENV_TEST.md": [title: "test"]
+                "tmp/runtime_env_prod.md": [title: "prod"],
+                "tmp/runtime_env_dev.md": [title: "dev"],
+                "tmp/runtime_env_test.md": [title: "test"]
               ],
               groups_for_extras: [
-                "Runtime ENV": ~r|.tmp/RUNTIME_ENV_.+\.md|
+                "Runtime ENV": ~r|tmp/runtime_env_.+\\.md|
               ]
             ]
           ]
@@ -58,13 +58,12 @@ defmodule Mix.Tasks.Confispex.Gen.Doc.Md do
           [
             # ...
             docs: [
-              "app.start --no-start",
-              fn _ -> File.mkdir_p!(".tmp") end
+              fn _ -> File.mkdir_p!("tmp") end
               | Enum.map(["test", "prod", "dev"], fn env ->
                   fn _ ->
                     Mix.Task.rerun("confispex.gen.doc.md", [
                       "--output",
-                      ".tmp/RUNTIME_ENV_\#{String.upcase(env)}.md",
+                      "tmp/runtime_env_\#{env}.md",
                       "--schema",
                       "MyApp.RuntimeConfigSchema", # <--- Change module name
                       "--env",
@@ -78,6 +77,7 @@ defmodule Mix.Tasks.Confispex.Gen.Doc.Md do
       end
 
   """
+  @requirements ["app.config"]
 
   def run(args) do
     {opts, []} =

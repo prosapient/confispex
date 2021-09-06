@@ -12,14 +12,7 @@ defmodule Confispex.Server do
 
   @impl true
   def init(_opts) do
-    {:ok,
-     %{
-       variables_store: nil,
-       variables_schema: nil,
-       invocations: %{},
-       context: nil,
-       touched_groups: []
-     }}
+    {:ok, nil}
   end
 
   @impl true
@@ -43,28 +36,21 @@ defmodule Confispex.Server do
     {:reply, value, new_state}
   end
 
-  def handle_call({:any_required_touched?, group_name}, _from, state) do
+  def handle_call({action, group_name}, _from, state)
+      when action in [:any_required_touched?, :all_required_touched?] do
+    checker =
+      case action do
+        :any_required_touched? -> &Enum.any?/2
+        :all_required_touched? -> &Enum.all?/2
+      end
+
     touched? =
       state.variables_schema
       |> Confispex.Schema.variables_in_context(state.context)
       |> Enum.filter(fn {_variable_name, spec} ->
         is_list(spec[:required]) and group_name in spec[:required]
       end)
-      |> Enum.any?(fn {variable_name, _spec} ->
-        match?({:ok, _}, Access.fetch(state.variables_store, variable_name))
-      end)
-
-    {:reply, touched?, state}
-  end
-
-  def handle_call({:all_required_touched?, group_name}, _from, state) do
-    touched? =
-      state.variables_schema
-      |> Confispex.Schema.variables_in_context(state.context)
-      |> Enum.filter(fn {_variable_name, spec} ->
-        is_list(spec[:required]) and group_name in spec[:required]
-      end)
-      |> Enum.all?(fn {variable_name, _spec} ->
+      |> checker.(fn {variable_name, _spec} ->
         match?({:ok, _}, Access.fetch(state.variables_store, variable_name))
       end)
 
@@ -80,33 +66,25 @@ defmodule Confispex.Server do
     {:noreply, state}
   end
 
-  def handle_cast({:set_schema, schema}, state) do
-    state = %{state | variables_schema: schema.variables_schema()}
+  def handle_cast({:init, params}, _state) do
+    state = init_state(params)
 
     {:noreply, state}
   end
 
-  def handle_cast({:set_context, context}, state) do
-    state = %{state | context: context}
+  def handle_cast({:init_once, params}, nil) do
+    state = init_state(params)
 
     {:noreply, state}
   end
 
-  def handle_cast({:set_new_store, store}, state) do
-    state =
-      if is_nil(state.variables_store) do
-        %{state | variables_store: store}
-      else
-        state
-      end
-
+  def handle_cast({:init_once, _}, state) do
     {:noreply, state}
   end
 
-  def handle_cast({:merge_store, store}, state) do
-    state = %{state | variables_store: Map.merge(state.variables_store, store)}
-
-    {:noreply, state}
+  def handle_cast({:update_store, update_fn}, state) do
+    store = state.variables_store |> update_fn.() |> ensure_map!()
+    {:noreply, %{state | variables_store: store}}
   end
 
   def child_spec(opts) do
@@ -118,4 +96,20 @@ defmodule Confispex.Server do
       shutdown: 500
     }
   end
+
+  defp init_state(%{context: context, schema: schema} = params) do
+    %{
+      variables_store:
+        case Map.get(params, :store, &System.get_env/0) do
+          store when is_map(store) -> store
+          fun when is_function(fun, 0) -> ensure_map!(fun.())
+        end,
+      variables_schema: schema.variables_schema(),
+      invocations: %{},
+      context: context,
+      touched_groups: []
+    }
+  end
+
+  defp ensure_map!(%{} = map), do: map
 end
