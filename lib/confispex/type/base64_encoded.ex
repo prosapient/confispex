@@ -8,6 +8,17 @@ defmodule Confispex.Type.Base64Encoded do
 
   * `:of` - `Confispex.Type.String` is used by default. Other types can be used as well according to
   `t:Confispex.Type.type_reference/0`
+
+  ## Examples
+
+      iex> Confispex.Type.cast("aGVsbG8=", Confispex.Type.Base64Encoded)
+      {:ok, "hello"}
+
+      iex> Confispex.Type.cast("//8=", Confispex.Type.Base64Encoded)
+      {:error, {<<255, 255>>, Confispex.Type.String, [validation: "not a valid string"]}}
+
+      iex> Confispex.Type.cast("//8=", {Confispex.Type.Base64Encoded, of: Confispex.Type.Term})
+      {:ok, <<0xFFFF::16>>}
   """
   @behaviour Confispex.Type
 

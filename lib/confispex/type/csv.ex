@@ -8,6 +8,26 @@ defmodule Confispex.Type.CSV do
 
   * `:of` - `Confispex.Type.String` is used by default.  Can be used any other type according to
   `t:Confispex.Type.type_reference/0`
+
+  ## Examples
+
+      iex> Confispex.Type.cast("John,user1@example.com", Confispex.Type.CSV)
+      {:ok, ["John", "user1@example.com"]}
+
+      iex> Confispex.Type.cast("John,user1@example.com", {Confispex.Type.CSV, of: Confispex.Type.Email})
+      {:error,
+       {"John,user1@example.com", {Confispex.Type.CSV, [of: Confispex.Type.Email]},
+        [
+          nested: [
+            {"John", Confispex.Type.Email,
+             [parsing: ["expected a string in format ", {:highlight, "username@host"}]]}
+          ]
+        ]}}
+
+      iex> Confispex.Type.cast(~s|John,"user1@example.com|, Confispex.Type.CSV)
+      {:error,
+       {~s|John,"user1@example.com|, Confispex.Type.CSV,
+        [parsing: ~s|expected escape character " but reached the end of file|]}}
   """
   @behaviour Confispex.Type
 

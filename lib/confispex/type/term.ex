@@ -5,6 +5,14 @@ defmodule Confispex.Type.Term do
   Returns input.
 
   No options.
+
+  ## Examples
+
+      iex> Confispex.Type.cast("value", Confispex.Type.Term)
+      {:ok, "value"}
+
+      iex> Confispex.Type.cast("", Confispex.Type.Term)
+      {:ok, ""}
   """
   @behaviour Confispex.Type
 

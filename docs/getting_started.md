@@ -47,6 +47,7 @@ defmodule MyApp.RuntimeConfigSchema do
   })
 end
 ```
+You can read about all possible options in doc about the type `t:Confispex.Schema.variable_spec/0`.
 
 Put the following content to `config/runtime.exs`:
 ```elixir

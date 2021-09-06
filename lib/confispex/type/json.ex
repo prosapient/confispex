@@ -8,6 +8,17 @@ defmodule Confispex.Type.JSON do
 
   * `:keys` - possible values are: `:strings` (default), `:atoms`, `:atoms!`.
   Read about meaning of this values in doc for `Jason.decode/2`.
+
+  ## Examples
+
+      iex> Confispex.Type.cast(~s|[{"email":"john@example.com","level":1}]|, Confispex.Type.JSON)
+      {:ok, [%{"email" => "john@example.com", "level" => 1}]}
+
+      iex> Confispex.Type.cast(~s|[{"email":"john@example.com","level":1}]|, {Confispex.Type.JSON, keys: :atoms})
+      {:ok, [%{email: "john@example.com", level: 1}]}
+
+      iex> Confispex.Type.cast("", Confispex.Type.JSON)
+      {:error, {"", Confispex.Type.JSON, [parsing: "unexpected end of input at position 0"]}}
   """
   @behaviour Confispex.Type
 

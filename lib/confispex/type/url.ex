@@ -5,6 +5,14 @@ defmodule Confispex.Type.URL do
   Returns input string if it is a valid URL.
 
   No options.
+
+  ## Examples
+
+      iex> Confispex.Type.cast("postgres://user@pass:host", Confispex.Type.URL)
+      {:ok, "postgres://user@pass:host"}
+
+      iex> Confispex.Type.cast("localhost", Confispex.Type.URL)
+      {:error, {"localhost", Confispex.Type.URL, [validation: "missing a scheme (e.g. https)"]}}
   """
   @behaviour Confispex.Type
 

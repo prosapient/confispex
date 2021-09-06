@@ -6,6 +6,48 @@ defmodule Confispex.Type.Boolean do
   and `"disabled"`, `"false"`, `"0"`, `"no"`, `0`, `false` to `false`.
 
   No options.
+
+  ## Examples
+
+      iex> Confispex.Type.cast("yes", Confispex.Type.Boolean)
+      {:ok, true}
+
+      iex> Confispex.Type.cast("true", Confispex.Type.Boolean)
+      {:ok, true}
+
+      iex> Confispex.Type.cast("0", Confispex.Type.Boolean)
+      {:ok, false}
+
+      iex> Confispex.Type.cast("disabled", Confispex.Type.Boolean)
+      {:ok, false}
+
+      iex> Confispex.Type.cast("DISABLED", Confispex.Type.Boolean)
+      {
+        :error,
+        {"DISABLED", Confispex.Type.Boolean,
+         [
+           validation: [
+             "expected one of: ",
+             [
+               {:highlight, "enabled"},
+               ", ",
+               {:highlight, "true"},
+               ", ",
+               {:highlight, "1"},
+               ", ",
+               {:highlight, "yes"},
+               ", ",
+               {:highlight, "disabled"},
+               ", ",
+               {:highlight, "false"},
+               ", ",
+               {:highlight, "0"},
+               ", ",
+               {:highlight, "no"}
+             ]
+           ]
+         ]}
+      }
   """
   @behaviour Confispex.Type
 

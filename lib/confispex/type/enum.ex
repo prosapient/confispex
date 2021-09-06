@@ -7,6 +7,16 @@ defmodule Confispex.Type.Enum do
   ### Options
 
   * `:values` - required option, can be a list of any values which implement `String.Chars` protocol.
+
+  ## Examples
+
+      iex> Confispex.Type.cast("low", {Confispex.Type.Enum, values: ["low", "high"]})
+      {:ok, "low"}
+
+      iex> Confispex.Type.cast("LOW", {Confispex.Type.Enum, values: ["low", "high"]})
+      {:error,
+       {"LOW", {Confispex.Type.Enum, [values: ["low", "high"]]},
+        [validation: ["expected one of: ", [{:highlight, "low"}, ", ", {:highlight, "high"}]]]}}
   """
   @behaviour Confispex.Type
 
