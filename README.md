@@ -64,12 +64,10 @@ end
 ```elixir
 import Config
 
-# setup confispex
-{:ok, _} = Application.ensure_all_started(:confispex)
-
-Confispex.set_schema(MyApp.RuntimeConfigSchema)
-Confispex.set_context(%{env: config_env(), target: config_target()})
-Confispex.set_new_store(System.get_env())
+Confispex.init(%{
+  schema: MyApp.RuntimeConfigSchema,
+  context: %{env: config_env(), target: config_target()}
+})
 
 # application config
 config :logger,
