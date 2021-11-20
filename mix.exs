@@ -50,7 +50,8 @@ defmodule Confispex.MixProject do
     [
       {:nimble_csv, "~> 1.0"},
       {:jason, "~> 1.1"},
-      {:ex_doc, "~> 0.24", only: :dev}
+      {:ex_doc, "~> 0.24", only: :dev},
+      {:decimal, "~> 2.0"}
     ]
   end
 end

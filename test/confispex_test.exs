@@ -8,6 +8,7 @@ defmodule ConfispexTest do
   doctest Confispex.Type.JSON
   doctest Confispex.Type.Integer
   doctest Confispex.Type.Float
+  doctest Confispex.Type.Decimal
   doctest Confispex.Type.Enum
   doctest Confispex.Type.Email
   doctest Confispex.Type.CSV
