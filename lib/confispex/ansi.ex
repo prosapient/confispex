@@ -9,7 +9,7 @@ defmodule Confispex.ANSI do
 
     grouped_variables =
       variables_schema
-      |> Confispex.Schema.grouped_variables(context)
+      |> Confispex.Schema.grouped_variables()
       |> Enum.map(fn {group, variables} ->
         {group, group_status(variables, group, invocations, context), variables}
       end)

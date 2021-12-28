@@ -106,7 +106,8 @@ defmodule Mix.Tasks.Confispex.Gen.Doc.Md do
 
     iodata =
       schema.variables_schema()
-      |> Confispex.Schema.grouped_variables(context)
+      |> Confispex.Schema.variables_in_context(context)
+      |> Confispex.Schema.grouped_variables()
       |> Enum.sort_by(fn {group_name, _variables} -> group_name end)
       |> Enum.flat_map(fn {group_name, variables} ->
         [

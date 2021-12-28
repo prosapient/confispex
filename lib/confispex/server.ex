@@ -46,7 +46,6 @@ defmodule Confispex.Server do
 
     touched? =
       state.variables_schema
-      |> Confispex.Schema.variables_in_context(state.context)
       |> Enum.filter(fn {_variable_name, spec} ->
         Confispex.Schema.variable_required?(spec, group_name, state.context)
       end)
@@ -104,7 +103,8 @@ defmodule Confispex.Server do
           store when is_map(store) -> store
           fun when is_function(fun, 0) -> ensure_map!(fun.())
         end,
-      variables_schema: schema.variables_schema(),
+      variables_schema:
+        schema.variables_schema() |> Confispex.Schema.variables_in_context(context) |> Map.new(),
       invocations: %{},
       context: context,
       touched_groups: []

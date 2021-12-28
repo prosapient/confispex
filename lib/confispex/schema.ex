@@ -184,9 +184,8 @@ defmodule Confispex.Schema do
   end
 
   @doc false
-  def grouped_variables(variables_schema, context) do
+  def grouped_variables(variables_schema) do
     variables_schema
-    |> variables_in_context(context)
     |> Enum.flat_map(fn {_variable_name, spec} = item ->
       Enum.map(spec.groups, &{&1, item})
     end)

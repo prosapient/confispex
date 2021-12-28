@@ -4,7 +4,7 @@ defmodule Confispex.MixProject do
   def project do
     [
       app: :confispex,
-      version: "1.0.0",
+      version: "1.0.1",
       elixir: "~> 1.11",
       start_permanent: Mix.env() == :prod,
       description: description(),
@@ -22,7 +22,7 @@ defmodule Confispex.MixProject do
 
   defp package do
     [
-      licenses: ["Apache 2"],
+      licenses: ["Apache-2.0"],
       links: %{
         GitHub: "https://github.com/prosapient/confispex"
       }
