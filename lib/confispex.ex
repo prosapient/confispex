@@ -97,7 +97,9 @@ defmodule Confispex do
   """
   @spec report(:detailed | :brief, GenServer.server()) :: :ok
   def report(mode, server \\ Confispex.Server) when mode in [:detailed, :brief] do
-    GenServer.cast(server, {:report, mode})
+    server
+    |> GenServer.call({:report, mode})
+    |> IO.puts()
   end
 
   @doc """

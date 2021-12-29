@@ -56,15 +56,19 @@ defmodule Confispex.Server do
     {:reply, touched?, state}
   end
 
-  @impl true
-  def handle_cast({:report, mode}, state) do
-    state.invocations
-    |> Confispex.ANSI.prepare_report(state.variables_schema, state.context, mode)
-    |> IO.puts()
+  def handle_call({:report, mode}, _from, state) do
+    report =
+      Confispex.ANSI.prepare_report(
+        state.invocations,
+        state.variables_schema,
+        state.context,
+        mode
+      )
 
-    {:noreply, state}
+    {:reply, report, state}
   end
 
+  @impl true
   def handle_cast({:init, params}, _state) do
     state = init_state(params)
 
