@@ -18,10 +18,21 @@ defmodule MyApp.RuntimeConfigSchema do
   alias Confispex.Type
 
   defvariables(%{
-    "RUNTIME_CONFIG_REPORT" => %{
-      cast: {Type.Enum, values: ["disabled", "detailed", "brief"]},
-      default: "disabled",
-      groups: [:misc]
+    "LOG_LEVEL" => %{
+      cast:
+        {Type.Enum,
+         values: [
+           "emergency",
+           "alert",
+           "critical",
+           "error",
+           "warning",
+           "notice",
+           "info",
+           "debug",
+           "none"
+         ]},
+      groups: [:base]
     },
     "DATABASE_URL" => %{
       aliases: ["DB_URL"],
@@ -59,22 +70,19 @@ Confispex.init(%{
 })
 
 # application config
+
+config :logger,
+  level: String.to_atom(Confispex.get("LOG_LEVEL"))
+
 config :my_app,
   contact_us_emails: Confispex.get("CONTACT_US_EMAILS"),
   database_pool: Confispex.get("DATABASE_POOL_SIZE"),
   database_ssl: !Confispex.get("DATABASE_NO_SSL")
-
-# printing report should be at the end
-case Confispex.get("RUNTIME_CONFIG_REPORT") do
-  "disabled" -> :noop
-  "detailed" -> Confispex.report(:detailed)
-  "brief" -> Confispex.report(:brief)
-end
 ```
 
 Now, if you run
 ```
-RUNTIME_CONFIG_REPORT=detailed CONTACT_US_EMAILS=myemail1@example.com,myemail2 MIX_ENV=prod mix run --no-halt
+LOG_LEVEL=info CONTACT_US_EMAILS=myemail1@example.com,myemail2 MIX_ENV=prod mix confispex.report --mode=detailed
 ```
 you'll see the following report
 
@@ -85,9 +93,9 @@ you'll see the following report
 * red - group has requried variables, they aren't present or they are invalid.
 * blue - group doesn't have required variables and always functional, because there is always a default value to which system can fall back.
 
-There are 3 groups in our example `:landing_page`, `:misc` and `:primary_db`:
+There are 3 groups in our example `:landing_page`, `:base` and `:primary_db`:
 * `:primary_db` is not functional, because all required variables weren't provided.
-* `:misc` is functional, everything is valid.
+* `:base` is functional, everything is valid.
 * `:landing_page` is functional too, because even if system failed to cast some value, default value is present and it is used.
 
 ### Symbols
@@ -96,7 +104,7 @@ There are 3 groups in our example `:landing_page`, `:misc` and `:primary_db`:
 just a warning. It might be a desired behavour for your case to have such items, because they may be hidden by some conditions
 which depend on other variables.
 * `✓` variable was provided and it is valid according to schema.
-* `-` variable not provided, but default value is present and used.
+* `-` variable wasn't provided and default value is used.
 
 
 There is a block `MISSING SCHEMA DEFINITIONS` at the bottom.
@@ -123,6 +131,6 @@ config :my_app,
 and run report with valid values:
 
 ```
-RUNTIME_CONFIG_REPORT=detailed CONTACT_US_EMAILS=myemail1@example.com,myemail2@host DB_URL=postgres://user:pwd@localhost:5432/db_name MIX_ENV=prod mix run --no-halt
+LOG_LEVEL=info CONTACT_US_EMAILS=myemail1@example.com,myemail2@host DB_URL=postgres://user:pwd@localhost:5432/db_name MIX_ENV=prod mix confispex.report --mode=detailed
 ```
 ![state 2](images/state2.png)

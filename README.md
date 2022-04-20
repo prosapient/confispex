@@ -80,7 +80,18 @@ config :tzdata,
          else: :disabled
        )
 
-Confispex.report(:brief)
+```
+
+### Print report
+
+```
+$ mix confispex.report
+$ mix confispex.report --mode=brief
+$ mix confispex.report --mode=detailed
+```
+or
+```elixir
+Confispex.report(:detailed)
 ```
 
 ## Documentation
