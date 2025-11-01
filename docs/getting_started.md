@@ -60,6 +60,70 @@ end
 ```
 You can read about all possible options in doc about the type `t:Confispex.Schema.variable_spec/0`.
 
+## Understanding Key Concepts
+
+Before we configure runtime, let's understand some important concepts used in the schema above.
+
+### Aliases
+
+Variables can have multiple names. Confispex tries them in order:
+
+```elixir
+"DATABASE_URL" => %{
+  aliases: ["DB_URL"],  # If DATABASE_URL not found, tries DB_URL
+  # ...
+}
+```
+
+This means you can set either `DATABASE_URL=postgres://...` or `DB_URL=postgres://...` and Confispex will find it.
+
+### Context Filtering
+
+Variables can be limited to specific environments:
+
+```elixir
+"DATABASE_URL" => %{
+  context: [env: [:prod]],  # Only available in production
+  # ...
+}
+```
+
+When you run in `:dev` or `:test`, this variable won't appear in the schema at all. This prevents confusion about which variables apply to which environment.
+
+### Error Handling
+
+When `Confispex.get/1` encounters an error (type casting fails or variable not found), it returns `nil` instead of raising an exception. All errors are collected and can be viewed later:
+
+```bash
+mix confispex.report --mode=detailed
+```
+
+This design allows you to see ALL configuration problems at once, rather than fixing them one-at-a-time.
+
+### The Store
+
+The "store" is where Confispex reads configuration values from. By default, it uses `System.get_env/0`, which returns all environment variables as a map. You can provide a custom store to read configuration from other sources like JSON files, databases, or any other data structure:
+
+```elixir
+# Read from JSON file
+store = File.read!("config.json") |> JSON.decode!()
+
+Confispex.init(%{
+  schema: MyApp.ConfigSchema,
+  context: %{env: :prod},
+  store: store
+})
+
+# Or use a function that lazily loads the store
+Confispex.init(%{
+  schema: MyApp.ConfigSchema,
+  context: %{env: :prod},
+  store: fn -> File.read!("config.json") |> JSON.decode!() end
+})
+```
+
+## Runtime Configuration
+
 Put the following content to `config/runtime.exs`:
 ```elixir
 import Config
@@ -99,12 +163,12 @@ There are 3 groups in our example `:landing_page`, `:base` and `:primary_db`:
 * `:landing_page` is functional too, because even if system failed to cast some value, default value is present and it is used.
 
 ### Symbols
-* `*` variable is required in specified group. 
-* `?` variable is defined in schema, but was not invoked in `runtime.exs`. It is not an error,
+* `*` - variable is required in specified group.
+* `?` - variable is defined in schema, but was not invoked in `runtime.exs`. It is not an error,
 just a warning. It might be a desired behaviour for your case to have such items, because they may be hidden by some conditions
 which depend on other variables.
-* `✓` variable was provided and it is valid according to schema.
-* `-` variable wasn't provided and default value is used.
+* `✓` - variable was provided and it is valid according to schema.
+* `-` - variable wasn't provided and default value is used.
 
 
 There is a block `MISSING SCHEMA DEFINITIONS` at the bottom.

@@ -80,7 +80,7 @@ defmodule Confispex.Schema do
           optional(:doc) => String.t(),
           optional(:default) => String.t(),
           optional(:default_lazy) => (Confispex.context() -> String.t() | nil),
-          optional(:template_value_generator) => (() -> String.t()),
+          optional(:template_value_generator) => (-> String.t()),
           optional(:required) => [atom()] | (Confispex.context() -> [atom()]),
           optional(:context) => [{atom(), atom()}],
           optional(:aliases) => [variable_name()]

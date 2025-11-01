@@ -5,7 +5,7 @@ defmodule Confispex.MixProject do
     [
       app: :confispex,
       version: "1.1.0",
-      elixir: "~> 1.11",
+      elixir: "~> 1.17",
       start_permanent: Mix.env() == :prod,
       description: description(),
       package: package(),
@@ -49,7 +49,6 @@ defmodule Confispex.MixProject do
   defp deps do
     [
       {:nimble_csv, "~> 1.0"},
-      {:jason, "~> 1.1"},
       {:ex_doc, "~> 0.24", only: :dev}
     ]
   end

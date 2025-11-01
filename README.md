@@ -1,5 +1,35 @@
 # Confispex
+
 A tool which allows defining specs for runtime configuration, cast values according to specified types and inspect them.
+
+[![Hex.pm](https://img.shields.io/hexpm/v/confispex.svg)](https://hex.pm/packages/confispex)
+[![Documentation](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/confispex)
+
+## Installation
+
+Add `confispex` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:confispex, "~> 1.1"}
+  ]
+end
+```
+
+Documentation: https://hexdocs.pm/confispex/
+
+## Features
+
+- **Type-safe configuration** - cast environment variables to proper Elixir types with validation
+- **10+ built-in types** - Boolean, Integer, Float, String, Enum, Email, URL, CSV, JSON, Base64, Term
+- **Aliases support** - multiple names for the same variable (e.g., `DATABASE_URL` and `DB_URL`)
+- **Context-aware defaults** - different defaults for dev/test/prod environments
+- **Group-based organization** - organize related variables into logical groups
+- **Comprehensive reporting** - visual reports with color-coded group status
+- **Error accumulation** - see all configuration issues at once, not one-at-a-time
+- **`.envrc` template generation** - auto-generate direnv templates from schema
+- **Extensible** - easy to create custom types
 
 ## Motivation
 We needed a tool for managing complexity of runtime configuration.
@@ -95,6 +125,11 @@ Confispex.report(:detailed)
 ```
 
 ## Documentation
-Documentation: https://hexdocs.pm/confispex/
 
-Check [Getting started](./docs/getting_started.md) guide.
+- **Full Documentation:** https://hexdocs.pm/confispex/
+- **Getting Started Guide:** [docs/getting_started.md](./docs/getting_started.md)
+- **Available Types:** See `Confispex.Type` module documentation
+
+## License
+
+Apache 2.0 - see [LICENSE.txt](./LICENSE.txt)

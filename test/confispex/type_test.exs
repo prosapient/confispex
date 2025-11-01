@@ -106,10 +106,11 @@ defmodule Confispex.TypeTest do
     end
 
     test "url" do
-      assert {:error, details} = Confispex.Type.cast("https://qq?qq%", Confispex.Type.URL)
+      assert {:ok, "https://qq?qq%"} = Confispex.Type.cast("https://qq?qq%", Confispex.Type.URL)
 
-      assert details ==
-               {"https://qq?qq%", Confispex.Type.URL, [parsing: "malformed query string"]}
+      assert {:error,
+              {"localhost", Confispex.Type.URL, [validation: "missing a scheme (e.g. https)"]}} =
+               Confispex.Type.cast("localhost", Confispex.Type.URL)
     end
 
     test "base64 encoded string" do
