@@ -1,12 +1,12 @@
 # Confispex
-A tool which allows to defining specs for runtime configuration, cast values according to specified types and inspect them.
+A tool which allows defining specs for runtime configuration, cast values according to specified types and inspect them.
 
 ## Motivation
 We needed a tool for managing complexity of runtime configuration.
 We have a lot of environment variables in monolithic application. > 150+ to be more precise.
 In such a situation `runtime.exs` quickly becomes polluted with badly designed anonymous functions which convert data to needed Elixir terms.
 Also, these functions have bad error reporting, because in a case of exception stacktrace isn't available in `runtime.exs` file.
-Environment variable names are flat, it is essential to want to categorize them.
+Environment variable names are flat, it is essential to categorize them.
 We can't switch to yaml-like configuration file, because existing infrastructure forces using environment variables.
 Variables can be used only in certain `env`, can have aliases, can be required/optional and this is needed to be documented somehow.
 The easiest way to specify that variable is required is by calling `System.fetch_env!/1`, but to see all required variables if they aren't documented, you have to run application `n` times when `n` is a number of required variables.
@@ -14,7 +14,7 @@ The team uses [`direnv`](https://direnv.net/) in development and have to keep a 
 
 So, how `confispex` helps with issues mentioned above?
 
-Elixir 1.11 allows running application code in `runtime.exs`, so `confispex` uses a schema defined in your application code to cast values to Elixir terms. Errors should not be reported immediately, but only when you ask a report. If `confispex` can't cast value from store or default value to specified type, then `nil` is returned. Think about it as an advanced wrapper around `System.get_env/1`. Also, there is a mix task to generate a `.envrc` template from schema.
+Elixir 1.11 allows running application code in `runtime.exs`, so `confispex` uses a schema defined in your application code to cast values to Elixir terms. Errors should not be reported immediately, but only when you ask for a report. If `confispex` can't cast value from store or default value to specified type, then `nil` is returned. Think about it as an advanced wrapper around `System.get_env/1`. Also, there is a mix task to generate a `.envrc` template from schema.
 
 ## Examples
 

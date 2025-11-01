@@ -105,7 +105,7 @@ defmodule Confispex do
   @doc """
   Returns `true` if any required variable in specified group is present in store.
 
-  If variable is present, then it means you was trying to configure the group.
+  If variable is present, then it means you were trying to configure the group.
   This is needed for conditional configuration of applications that may shutdown the system if you try to configure
   the application with invalid params.
 

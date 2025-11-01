@@ -90,7 +90,7 @@ you'll see the following report
 
 ### Group colors
 * green - group has required variables and they are present and valid. Such color is not present on a screenshot above, we'll make green group later.
-* red - group has requried variables, they aren't present or they are invalid.
+* red - group has required variables, they aren't present or they are invalid.
 * blue - group doesn't have required variables and always functional, because there is always a default value to which system can fall back.
 
 There are 3 groups in our example `:landing_page`, `:base` and `:primary_db`:
@@ -101,7 +101,7 @@ There are 3 groups in our example `:landing_page`, `:base` and `:primary_db`:
 ### Symbols
 * `*` variable is required in specified group. 
 * `?` variable is defined in schema, but was not invoked in `runtime.exs`. It is not an error,
-just a warning. It might be a desired behavour for your case to have such items, because they may be hidden by some conditions
+just a warning. It might be a desired behaviour for your case to have such items, because they may be hidden by some conditions
 which depend on other variables.
 * `✓` variable was provided and it is valid according to schema.
 * `-` variable wasn't provided and default value is used.
