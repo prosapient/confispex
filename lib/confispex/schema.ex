@@ -1,6 +1,11 @@
 defmodule Confispex.Schema do
   @moduledoc """
-  ## Example
+  Defines the behavior and helpers for creating configuration schemas.
+
+  A schema describes all environment variables your application uses, their types,
+  defaults, validation rules, and how they're organized into logical groups.
+
+  ## Basic Usage
 
       defmodule MyApp.RuntimeConfigSchema do
         import Confispex.Schema
@@ -8,71 +13,159 @@ defmodule Confispex.Schema do
         alias Confispex.Type
 
         defvariables(%{
-          "RUNTIME_CONFIG_REPORT" => %{
-            cast: {Type.Enum, values: ["disabled", "detailed", "brief"]},
-            default: "disabled",
-            groups: [:misc]
-          },
-          "TZDATA_AUTOUPDATE_ENABLED" => %{
-            doc: "Autoupdate timezones from IANA Time Zone Database",
-            cast: Type.Boolean,
-            default: "false",
-            groups: [:base],
-            context: [env: [:dev, :prod]]
-          },
-          "LOG_LEVEL" => %{
-            cast:
-              {Type.Enum,
-               values: [
-                 "emergency",
-                 "alert",
-                 "critical",
-                 "error",
-                 "warning",
-                 "notice",
-                 "info",
-                 "debug",
-                 "none"
-               ]},
-            default_lazy: fn
-              %{env: :test} -> "warning"
-              %{env: :dev} -> "debug"
-              %{env: :prod} -> "debug"
-            end,
-            groups: [:base]
-          },
+          "DATABASE_URL" => %{
+            cast: Type.URL,
+            groups: [:database],
+            required: [:database]
+          }
+        })
+      end
+
+  ## Variable Specification
+
+  Each variable is defined with a map containing the following options:
+
+  ### Required Options
+
+  * `:cast` - type specification for casting the value. Can be:
+    - A module implementing `Confispex.Type` behavior (e.g., `Type.String`)
+    - A tuple with module and options (e.g., `{Type.Integer, scope: :positive}`)
+
+  * `:groups` - list of group atoms this variable belongs to. Groups are used for:
+    - Organizing variables in reports
+    - Checking if a feature is properly configured via `all_required_touched?/1`
+    - Conditional configuration based on `any_required_touched?/1`
+
+  ### Optional Options
+
+  * `:doc` - human-readable description shown in generated `.envrc` template files
+
+  * `:default` - default value as a string. Used when variable is not present in the store.
+    Cannot be used with `:required` or `:default_lazy`.
+
+        "PORT" => %{
+          cast: Type.Integer,
+          default: "4000",
+          groups: [:server]
+        }
+
+  * `:default_lazy` - function `(context -> String.t() | nil)` for context-dependent defaults.
+    Receives runtime context (e.g., `%{env: :prod, target: :host}`) and returns default value
+    or `nil` to skip default. Cannot be used with `:default`.
+
+        "LOG_LEVEL" => %{
+          cast: {Type.Enum, values: ["debug", "info", "warning", "error"]},
+          default_lazy: fn
+            %{env: :prod} -> "warning"
+            %{env: :dev} -> "debug"
+            _ -> "info"
+          end,
+          groups: [:logging]
+        }
+
+  * `:required` - marks variable as required in specific groups. Can be:
+    - List of group atoms (e.g., `[:database, :cache]`)
+    - Function `(context -> [atom()])` for context-dependent requirements
+
+    When all required variables in a group are present and valid, the group is considered
+    ready for use. Cannot be used with `:default`.
+
+        "DATABASE_URL" => %{
+          cast: Type.URL,
+          groups: [:database],
+          required: [:database]  # Required when using :database group
+        }
+
+  * `:context` - keyword list specifying when this variable should be included in the schema.
+    Variables outside their context are filtered out completely.
+
+        "DATABASE_URL" => %{
+          cast: Type.URL,
+          context: [env: [:prod]],  # Only in production
+          groups: [:database]
+        }
+
+  * `:aliases` - list of alternative names for this variable. Confispex will try each name
+    in order until it finds a value in the store.
+
+        "DATABASE_URL" => %{
+          aliases: ["DB_URL", "DATABASE_CONNECTION"],
+          cast: Type.URL,
+          groups: [:database]
+        }
+
+  * `:template_value_generator` - function `(-> String.t())` that generates a value for
+    `.envrc` template. Useful for secrets that should be generated once.
+
+        "SECRET_KEY_BASE" => %{
+          cast: Type.String,
+          template_value_generator: fn -> :crypto.strong_rand_bytes(64) |> Base.encode64() end,
+          groups: [:security]
+        }
+
+  ## Complete Example
+
+      defmodule MyApp.RuntimeConfigSchema do
+        import Confispex.Schema
+        @behaviour Confispex.Schema
+        alias Confispex.Type
+
+        defvariables(%{
+          # Simple required variable
           "DATABASE_URL" => %{
             aliases: ["DB_URL"],
-            doc: "Full DB URL",
+            doc: "PostgreSQL connection URL",
             cast: Type.URL,
             context: [env: [:prod]],
-            groups: [:primary_db],
-            required: [:primary_db]
+            groups: [:database],
+            required: [:database]
           },
+
+          # Variable with default
           "DATABASE_POOL_SIZE" => %{
-            aliases: ["DB_POOL_SIZE", "POOL_SIZE"],
+            aliases: ["POOL_SIZE"],
             cast: {Type.Integer, scope: :positive},
             default: "10",
             context: [env: [:prod]],
-            groups: [:primary_db]
+            groups: [:database]
+          },
+
+          # Context-dependent default
+          "LOG_LEVEL" => %{
+            cast: {Type.Enum, values: ["debug", "info", "warning", "error"]},
+            default_lazy: fn
+              %{env: :test} -> "warning"
+              %{env: :dev} -> "debug"
+              %{env: :prod} -> "info"
+            end,
+            groups: [:logging]
+          },
+
+          # Generated secret
+          "SECRET_KEY_BASE" => %{
+            cast: Type.String,
+            template_value_generator: fn ->
+              :crypto.strong_rand_bytes(64) |> Base.encode64()
+            end,
+            groups: [:security],
+            required: [:security]
           }
         })
       end
   """
+
+  @typedoc """
+  Name of a configuration variable.
+
+  Typically a string representing an environment variable name (e.g., `"DATABASE_URL"`),
+  but can be any term.
+  """
   @type variable_name :: term()
 
   @typedoc """
-  A spec for a single variable
+  Specification for a single configuration variable.
 
-  * `:cast` - describes how value should be cast.
-  * `:groups` - a list of groups which are affected by variable.
-  * `:doc` - a description about variable, shown in generated `.envrc` file.
-  * `:default` - default value. Must be set in raw format. Raw format was chosen to populate `.envrc` file with default values.
-  * `:default_lazy` - default value based on given context. Useful when default value must be different for different environments. Cannot be used alongside `:default` parameter. Returns `nil` if default value should be ignored.
-  * `:template_value_generator` - a function that is used in `confispex.gen.envrc_template` mix task to generate a value for a variable. Such value will always be uncommented even if it is not required. This is useful for variables like "SECRET_KEY_BASE" which should be generated only once.
-  * `:required` - a list of groups or a function that returns a list of groups in which variable is required. When all required variables of the group are cast successfully, then the group is considered as ready for use.
-  * `:context` - specifies context in which variable is used.
-  * `:aliases` - a list of alias names.
+  See the module documentation for detailed explanation of each option.
   """
   @type variable_spec :: %{
           required(:cast) => module() | {module(), opts :: keyword()},
