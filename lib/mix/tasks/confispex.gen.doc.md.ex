@@ -1,81 +1,68 @@
 defmodule Mix.Tasks.Confispex.Gen.Doc.Md do
   use Mix.Task
-  @shortdoc "Generate a doc in markdown format"
+
+  @shortdoc "Generate Markdown documentation from schema"
+
   @moduledoc """
-  #{@shortdoc}
+  Generates a Markdown documentation file listing all configuration variables
+  from your schema in a human-readable table format.
+
+  Perfect for:
+  - Project README files
+  - Deployment documentation
+  - Onboarding new team members
+  - CI/CD pipeline documentation
+
+  The generated document includes tables organized by groups showing:
+  - Variable names
+  - Required/optional status
+  - Default values
+  - Descriptions from `:doc` fields
+
+  ## Options
+
+  - `--schema` - (required) the module name of your schema (e.g., `MyApp.RuntimeConfigSchema`)
+  - `--output` - (required) path to output file (e.g., `RUNTIME_CONFIG.md`)
+  - `--env` - (optional) environment context (e.g., `prod`, `dev`, `test`)
+  - `--target` - (optional) target context (e.g., `host`, `docker`)
 
   ## Examples
 
-      $ mix confispex.gen.doc.md --output=RUNTIME_ENV_PROD.md --schema=MyRuntimeConfigSchema --env=prod --target=abc
+      # Generate docs for production environment
+      $ mix confispex.gen.doc.md \\
+          --schema=MyApp.RuntimeConfigSchema \\
+          --output=docs/PRODUCTION_CONFIG.md \\
+          --env=prod \\
+          --target=host
 
-  ## Example of generated markdown
+      # Generate docs for development
+      $ mix confispex.gen.doc.md \\
+          --schema=MyApp.RuntimeConfigSchema \\
+          --output=README_CONFIG.md \\
+          --env=dev
 
-      # Variables (env=dev target=host)
+  ## Example Output
 
-      ## GROUP :dev_space
+      # Variables (env=prod target=host)
 
-      | Name               | Required | Default | Description               |
-      | ------------------ | -------- | ------- | ------------------------- |
-      | DEV_SPACE_PASSWORD | required |         | A password for /dev space |
-      | DEV_SPACE_USERNAME | required |         | A username for /dev space |
+      ## GROUP :database
 
-      ## GROUP :primary_db
+      | Name          | Required | Default   | Description            |
+      | ------------- | -------- | --------- | ---------------------- |
+      | DATABASE_URL  | required |           | PostgreSQL connection  |
+      | DATABASE_POOL |          | 10        | Connection pool size   |
 
-      | Name               | Required | Default   | Description            |
-      | ------------------ | -------- | --------- | ---------------------- |
-      | DATABASE_HOST      |          | localhost | DB host (postgres)     |
-      | DATABASE_NAME      |          | myapp_dev | DB name (postgres)     |
-      | DATABASE_PASSWORD  |          | postgres  | DB password (postgres) |
-      | DATABASE_POOL_SIZE |          | 10        |                        |
-      | DATABASE_PORT      |          | 5432      | DB port (postgres)     |
-      | DATABASE_USERNAME  |          | postgres  | DB username (postgres) |
+      ## GROUP :cache
 
-  ## Integration with `ex_doc`
+      | Name       | Required | Default     | Description       |
+      | ---------- | -------- | ----------- | ----------------- |
+      | REDIS_URL  | required |             | Redis connection  |
 
-  Adjust your `mix.exs` file with the following content
+  ## Context-Aware Documentation
 
-      defmodule MyApp.MixProject do
-        use Mix.Project
-
-        def project do
-          [
-            # ...
-            aliases: aliases(),
-            docs: [
-              extras: [
-                "tmp/runtime_env_prod.md": [title: "prod"],
-                "tmp/runtime_env_dev.md": [title: "dev"],
-                "tmp/runtime_env_test.md": [title: "test"]
-              ],
-              groups_for_extras: [
-                "Runtime ENV": ~r|tmp/runtime_env_.+\\.md|
-              ]
-            ]
-          ]
-        end
-
-        defp aliases do
-          [
-            # ...
-            docs: [
-              fn _ -> File.mkdir_p!("tmp") end
-              | Enum.map(["test", "prod", "dev"], fn env ->
-                  fn _ ->
-                    Mix.Task.rerun("confispex.gen.doc.md", [
-                      "--output",
-                      "tmp/runtime_env_\#{env}.md",
-                      "--schema",
-                      "MyApp.RuntimeConfigSchema", # <--- Change module name
-                      "--env",
-                      env
-                    ])
-                  end
-                end) ++ ["docs"]
-            ]
-          ]
-        end
-      end
-
+  The generated documentation respects context filters in your schema. Variables
+  marked with `context: [env: [:prod]]` will only appear in documentation generated
+  with `--env=prod`.
   """
   @requirements ["app.config"]
 

@@ -1,13 +1,45 @@
 defmodule Mix.Tasks.Confispex.Gen.Template.Envrc do
   use Mix.Task
-  @shortdoc "Generate .envrc template for dotenv utility"
+
+  @shortdoc "Generate .envrc template for direnv"
+
   @moduledoc """
-  #{@shortdoc}
+  Generates a `.envrc` template file from your configuration schema for use with [direnv](https://direnv.net/).
+
+  The generated file contains all variables from your schema organized by groups,
+  with helpful comments and smart defaults:
+
+  - **Required variables** - uncommented, ready to fill in
+  - **Variables with defaults** - commented out with their default values
+  - **Variables with generators** - uncommented with generated values (e.g., secrets)
+  - **Optional variables** - commented out
+
+  ## Options
+
+  - `--schema` - (required) the module name of your schema (e.g., `MyApp.RuntimeConfigSchema`)
+  - `--output` - (required) path to output file (e.g., `.envrc` or `.envrc.example`)
 
   ## Examples
 
-      $ mix confispex.gen.template.envrc --output=.envrc --schema=MyRuntimeConfigSchema
+      # Generate .envrc for development
+      $ mix confispex.gen.template.envrc --schema=MyApp.RuntimeConfigSchema --output=.envrc
+
+      # Generate template for new developers
+      $ mix confispex.gen.template.envrc --schema=MyApp.RuntimeConfigSchema --output=.envrc.example
+
+  ## Usage with direnv
+
+  After generating the file:
+
+  1. Edit `.envrc` and fill in required values
+  2. Run `direnv allow` to load the environment
+  3. Variables will be automatically loaded when you enter the project directory
+
+  ## Safety
+
+  The task will prompt for confirmation before overwriting existing files.
   """
+
   @requirements ["app.config"]
 
   def run(args) do
