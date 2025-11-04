@@ -1,13 +1,22 @@
 defmodule Confispex.Type.CSV do
+  @options_schema NimbleOptions.new!(
+                    of: [
+                      type: {:or, [:atom, {:tuple, [:atom, :keyword_list]}]},
+                      required: false,
+                      default: Confispex.Type.String,
+                      doc:
+                        "Type reference for casting CSV values. Can be a module or `{module, opts}` tuple. Defaults to `Confispex.Type.String`."
+                    ]
+                  )
+
   @moduledoc """
   A CSV type.
 
   Casts a CSV string to a list with values which are cast according to `:of` option.
 
-  ### Options
+  ## Options
 
-  * `:of` - `Confispex.Type.String` is used by default.  Can be used any other type according to
-  `t:Confispex.Type.type_reference/0`
+  #{NimbleOptions.docs(@options_schema)}
 
   ## Examples
 
@@ -30,14 +39,6 @@ defmodule Confispex.Type.CSV do
         [parsing: ~s|expected escape character " but reached the end of file|]}}
   """
   @behaviour Confispex.Type
-
-  @options_schema NimbleOptions.new!(
-                    of: [
-                      type: {:or, [:atom, {:tuple, [:atom, :keyword_list]}]},
-                      required: false,
-                      default: Confispex.Type.String
-                    ]
-                  )
 
   @impl true
   def cast(value, opts) when is_binary(value) do

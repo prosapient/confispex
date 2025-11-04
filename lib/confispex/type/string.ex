@@ -4,7 +4,9 @@ defmodule Confispex.Type.String do
 
   Returns input string if it is not empty.
 
-  No options.
+  ## Options
+
+  This type has no options.
 
   ## Examples
 

@@ -1,12 +1,20 @@
 defmodule Confispex.Type.Integer do
+  @options_schema NimbleOptions.new!(
+                    scope: [
+                      type: {:in, [:positive]},
+                      required: false,
+                      doc: "Requires parsed integer value to be positive (> 0)."
+                    ]
+                  )
+
   @moduledoc """
   An integer type.
 
   Casts input string to `Integer`.
 
-  ### Options
+  ## Options
 
-  * `:scope` - can be `:positive`, requires parsed integer value to be > 0
+  #{NimbleOptions.docs(@options_schema)}
 
   ## Examples
 
@@ -22,8 +30,6 @@ defmodule Confispex.Type.Integer do
         [parsing: ["unexpected substring ", {:highlight, ~s|" monkeys"|}]]}}
   """
   @behaviour Confispex.Type
-
-  @options_schema NimbleOptions.new!(scope: [type: {:in, [:positive]}, required: false])
 
   @impl true
 

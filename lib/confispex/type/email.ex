@@ -4,7 +4,9 @@ defmodule Confispex.Type.Email do
 
   Returns input value if it is in `username@host` format.
 
-  No options.
+  ## Options
+
+  This type has no options.
 
   ## Examples
 

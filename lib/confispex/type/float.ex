@@ -4,7 +4,9 @@ defmodule Confispex.Type.Float do
 
   Casts input string to `Float`.
 
-  No options.
+  ## Options
+
+  This type has no options.
 
   ## Examples
 

@@ -4,7 +4,9 @@ defmodule Confispex.Type.Term do
 
   Returns input.
 
-  No options.
+  ## Options
+
+  This type has no options.
 
   ## Examples
 

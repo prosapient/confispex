@@ -1,15 +1,26 @@
 defmodule Confispex.Type.JSON do
+  @options_schema NimbleOptions.new!(
+                    keys: [
+                      type: {:in, [:strings, :atoms, :atoms!]},
+                      required: false,
+                      default: :strings,
+                      doc: """
+                      How to handle map keys. Options:
+                      * `:strings` - keys remain as strings (default)
+                      * `:atoms` - converts keys to existing atoms only (safe)
+                      * `:atoms!` - converts keys to atoms, creating new atoms if needed (use with caution)
+                      """
+                    ]
+                  )
+
   @moduledoc """
   A JSON type.
 
   Casts JSON string to Elixir terms using built-in `JSON` module.
 
-  ### Options
+  ## Options
 
-  * `:keys` - possible values are: `:strings` (default), `:atoms`, `:atoms!`.
-    - `:strings` - keys remain as strings (default behavior)
-    - `:atoms` - converts keys to existing atoms only (safe)
-    - `:atoms!` - converts keys to atoms, creating new atoms if needed (use with caution)
+  #{NimbleOptions.docs(@options_schema)}
 
   ## Examples
 
@@ -23,14 +34,6 @@ defmodule Confispex.Type.JSON do
       {:error, {"", Confispex.Type.JSON, [parsing: "unexpected end of input at position 0"]}}
   """
   @behaviour Confispex.Type
-
-  @options_schema NimbleOptions.new!(
-                    keys: [
-                      type: {:in, [:strings, :atoms, :atoms!]},
-                      required: false,
-                      default: :strings
-                    ]
-                  )
 
   @impl true
   def cast(value, opts) when is_binary(value) do

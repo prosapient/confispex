@@ -1,13 +1,22 @@
 defmodule Confispex.Type.Base64Encoded do
+  @options_schema NimbleOptions.new!(
+                    of: [
+                      type: {:or, [:atom, {:tuple, [:atom, :keyword_list]}]},
+                      required: false,
+                      default: Confispex.Type.String,
+                      doc:
+                        "Type reference for casting decoded value. Can be a module or `{module, opts}` tuple. Defaults to `Confispex.Type.String`."
+                    ]
+                  )
+
   @moduledoc """
   A type for base64 encoded values.
 
   Decodes base64 encoded string.
 
-  ### Options
+  ## Options
 
-  * `:of` - `Confispex.Type.String` is used by default. Other types can be used as well according to
-  `t:Confispex.Type.type_reference/0`
+  #{NimbleOptions.docs(@options_schema)}
 
   ## Examples
 
@@ -21,14 +30,6 @@ defmodule Confispex.Type.Base64Encoded do
       {:ok, <<0xFFFF::16>>}
   """
   @behaviour Confispex.Type
-
-  @options_schema NimbleOptions.new!(
-                    of: [
-                      type: {:or, [:atom, {:tuple, [:atom, :keyword_list]}]},
-                      required: false,
-                      default: Confispex.Type.String
-                    ]
-                  )
 
   @impl true
   def cast(value, opts) when is_binary(value) do

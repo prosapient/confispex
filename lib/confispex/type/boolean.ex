@@ -5,7 +5,9 @@ defmodule Confispex.Type.Boolean do
   Casts `"enabled"`, `"true"`, `"1"`, `"yes"`, `1`, `true` to `true`,
   and `"disabled"`, `"false"`, `"0"`, `"no"`, `0`, `false` to `false`.
 
-  No options.
+  ## Options
+
+  This type has no options.
 
   ## Examples
 

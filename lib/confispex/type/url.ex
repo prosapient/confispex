@@ -4,7 +4,9 @@ defmodule Confispex.Type.URL do
 
   Returns input string if it is a valid URL.
 
-  No options.
+  ## Options
+
+  This type has no options.
 
   ## Examples
 

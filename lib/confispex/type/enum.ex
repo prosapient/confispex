@@ -1,12 +1,21 @@
 defmodule Confispex.Type.Enum do
+  @options_schema NimbleOptions.new!(
+                    values: [
+                      type: {:list, :any},
+                      required: true,
+                      doc:
+                        "A list of allowed values. Can contain any values which implement `String.Chars` protocol."
+                    ]
+                  )
+
   @moduledoc """
   An enum type.
 
   Returns input value if it is present in a list specified in `:values` option.
 
-  ### Options
+  ## Options
 
-  * `:values` - required option, can be a list of any values which implement `String.Chars` protocol.
+  #{NimbleOptions.docs(@options_schema)}
 
   ## Examples
 
@@ -19,8 +28,6 @@ defmodule Confispex.Type.Enum do
         [validation: ["expected one of: ", [{:highlight, "low"}, ", ", {:highlight, "high"}]]]}}
   """
   @behaviour Confispex.Type
-
-  @options_schema NimbleOptions.new!(values: [type: {:list, :any}, required: true])
 
   @impl true
   def cast(value, opts) when is_binary(value) do
