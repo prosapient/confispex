@@ -22,11 +22,21 @@ defmodule Confispex.Type.Base64Encoded do
   """
   @behaviour Confispex.Type
 
+  @options_schema NimbleOptions.new!(
+                    of: [
+                      type: {:or, [:atom, {:tuple, [:atom, :keyword_list]}]},
+                      required: false,
+                      default: Confispex.Type.String
+                    ]
+                  )
+
   @impl true
   def cast(value, opts) when is_binary(value) do
+    validated_opts = NimbleOptions.validate!(opts, @options_schema)
+
     case Base.decode64(value) do
       {:ok, decoded_value} ->
-        of = Keyword.get(opts, :of, Confispex.Type.String)
+        of = Keyword.fetch!(validated_opts, :of)
         Confispex.Type.cast(decoded_value, of)
 
       :error ->

@@ -49,6 +49,7 @@ defmodule Confispex.MixProject do
   defp deps do
     [
       {:nimble_csv, "~> 1.0"},
+      {:nimble_options, "~> 1.0"},
       {:ex_doc, "~> 0.24", only: :dev}
     ]
   end

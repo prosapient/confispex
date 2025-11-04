@@ -19,8 +19,12 @@ defmodule Confispex.Type.String do
   """
   @behaviour Confispex.Type
 
+  @options_schema NimbleOptions.new!([])
+
   @impl true
-  def cast(value, _opts) when is_binary(value) do
+  def cast(value, opts) when is_binary(value) do
+    NimbleOptions.validate!(opts, @options_schema)
+
     case String.trim(value) do
       "" ->
         {:error, validation: "blank string"}

@@ -31,10 +31,20 @@ defmodule Confispex.Type.CSV do
   """
   @behaviour Confispex.Type
 
+  @options_schema NimbleOptions.new!(
+                    of: [
+                      type: {:or, [:atom, {:tuple, [:atom, :keyword_list]}]},
+                      required: false,
+                      default: Confispex.Type.String
+                    ]
+                  )
+
   @impl true
   def cast(value, opts) when is_binary(value) do
+    validated_opts = NimbleOptions.validate!(opts, @options_schema)
+
     with {:ok, line} <- parse_csv(value) do
-      of = Keyword.get(opts, :of, Confispex.Type.String)
+      of = Keyword.fetch!(validated_opts, :of)
 
       results =
         Enum.map(line, fn value ->

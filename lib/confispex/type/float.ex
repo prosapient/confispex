@@ -23,12 +23,17 @@ defmodule Confispex.Type.Float do
   """
   @behaviour Confispex.Type
 
+  @options_schema NimbleOptions.new!([])
+
   @impl true
-  def cast(value, _opts) when is_float(value) do
+  def cast(value, opts) when is_float(value) do
+    NimbleOptions.validate!(opts, @options_schema)
     {:ok, value}
   end
 
-  def cast(value, _opts) when is_binary(value) do
+  def cast(value, opts) when is_binary(value) do
+    NimbleOptions.validate!(opts, @options_schema)
+
     case Float.parse(value) do
       {float, ""} ->
         {:ok, float}

@@ -20,9 +20,12 @@ defmodule Confispex.Type.Enum do
   """
   @behaviour Confispex.Type
 
+  @options_schema NimbleOptions.new!(values: [type: {:list, :any}, required: true])
+
   @impl true
   def cast(value, opts) when is_binary(value) do
-    values = opts |> Keyword.fetch!(:values) |> Enum.map(&to_string/1)
+    validated_opts = NimbleOptions.validate!(opts, @options_schema)
+    values = validated_opts |> Keyword.fetch!(:values) |> Enum.map(&to_string/1)
 
     if value in values do
       {:ok, value}

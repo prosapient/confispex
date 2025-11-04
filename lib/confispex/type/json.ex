@@ -24,9 +24,18 @@ defmodule Confispex.Type.JSON do
   """
   @behaviour Confispex.Type
 
+  @options_schema NimbleOptions.new!(
+                    keys: [
+                      type: {:in, [:strings, :atoms, :atoms!]},
+                      required: false,
+                      default: :strings
+                    ]
+                  )
+
   @impl true
   def cast(value, opts) when is_binary(value) do
-    keys = Keyword.get(opts, :keys, :strings)
+    validated_opts = NimbleOptions.validate!(opts, @options_schema)
+    keys = Keyword.fetch!(validated_opts, :keys)
 
     with {:ok, result} <- JSON.decode(value) do
       {:ok, convert_keys(result, keys)}

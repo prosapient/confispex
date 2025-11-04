@@ -51,6 +51,8 @@ defmodule Confispex.Type.Boolean do
   """
   @behaviour Confispex.Type
 
+  @options_schema NimbleOptions.new!([])
+
   @true_values ["enabled", "true", "1", "yes"]
   @false_values ["disabled", "false", "0", "no"]
   @impl true
@@ -58,7 +60,9 @@ defmodule Confispex.Type.Boolean do
     cast(to_string(value), opts)
   end
 
-  def cast(value, _opts) when is_binary(value) do
+  def cast(value, opts) when is_binary(value) do
+    NimbleOptions.validate!(opts, @options_schema)
+
     cond do
       value in @true_values ->
         {:ok, true}

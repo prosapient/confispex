@@ -16,8 +16,11 @@ defmodule Confispex.Type.Term do
   """
   @behaviour Confispex.Type
 
+  @options_schema NimbleOptions.new!([])
+
   @impl true
-  def cast(value, _opts) do
+  def cast(value, opts) do
+    NimbleOptions.validate!(opts, @options_schema)
     {:ok, value}
   end
 end
