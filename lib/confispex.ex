@@ -1,4 +1,17 @@
 defmodule Confispex do
+  @report_options_schema NimbleOptions.new!(
+                           server: [
+                             type: :atom,
+                             doc:
+                               "The GenServer to query for report data. Defaults to the internal server."
+                           ],
+                           emit_ansi?: [
+                             type: :boolean,
+                             doc:
+                               "Whether to emit ANSI color codes. Defaults to `IO.ANSI.enabled?()`."
+                           ]
+                         )
+
   @moduledoc """
   A tool which allows defining specs for runtime configuration, cast values according to specified types and inspect them.
 
@@ -48,7 +61,19 @@ defmodule Confispex do
 
   See the [Getting Started](https://hexdocs.pm/confispex/getting_started.html) guide for more details.
   """
+
+  @typedoc """
+  A map containing configuration values, typically environment variables.
+
+  Keys are variable names (usually strings) and values are their string representations.
+  """
   @type store :: map()
+
+  @typedoc """
+  Runtime context information used for conditional defaults and requirements.
+
+  Commonly includes `:env` (`:dev`, `:test`, `:prod`) and `:target` (`:host`, `:docker`).
+  """
   @type context :: %{atom() => atom()}
 
   @doc """
@@ -169,7 +194,11 @@ defmodule Confispex do
   - `:detailed` - shows actual values from the store (may contain sensitive data)
   - `:brief` - hides values, only shows variable status (safe for logs)
 
-  ## Example
+  ## Options
+
+  #{NimbleOptions.docs(@report_options_schema)}
+
+  ## Examples
 
       # Show full report with values
       Confispex.report(:detailed)
@@ -177,15 +206,25 @@ defmodule Confispex do
       # Show report without values (safe for CI/logs)
       Confispex.report(:brief)
 
+      # Force colors on remote shell
+      Confispex.report(:detailed, emit_ansi?: true)
+
+      # Custom server with colors disabled
+      Confispex.report(:brief, server: MyApp.ConfigServer, emit_ansi?: false)
+
   You can also use the mix task:
 
       mix confispex.report --mode=detailed
       mix confispex.report --mode=brief
   """
-  @spec report(:detailed | :brief, GenServer.server()) :: :ok
-  def report(mode, server \\ Confispex.Server) when mode in [:detailed, :brief] do
+  @spec report(:detailed | :brief, keyword()) :: :ok
+  def report(mode, opts \\ []) when mode in [:detailed, :brief] do
+    opts = NimbleOptions.validate!(opts, @report_options_schema)
+    server = Keyword.get(opts, :server, Confispex.Server)
+    emit_ansi? = Keyword.get(opts, :emit_ansi?, IO.ANSI.enabled?())
+
     server
-    |> GenServer.call({:report, mode})
+    |> GenServer.call({:report, mode, emit_ansi?})
     |> IO.puts()
   end
 

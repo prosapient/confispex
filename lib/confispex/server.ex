@@ -56,14 +56,15 @@ defmodule Confispex.Server do
     {:reply, touched?, state}
   end
 
-  def handle_call({:report, mode}, _from, state) do
+  def handle_call({:report, mode, emit_ansi?}, _from, state) do
     report =
-      Confispex.ANSI.prepare_report(
-        state.invocations,
+      state.invocations
+      |> Confispex.ANSI.prepare_report(
         state.variables_schema,
         state.context,
         mode
       )
+      |> Confispex.ANSI.apply_colors(emit_ansi?)
 
     {:reply, report, state}
   end

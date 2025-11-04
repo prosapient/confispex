@@ -166,8 +166,8 @@ defmodule Confispex.ANSI do
       alias_msg =
         case source_type do
           {:store, :original} -> []
-          {:store, {:alias, alias_name}} -> "Attempt to use alias #{highlight(alias_name)}"
-          :default -> "Attempt to use #{highlight("schema default")}"
+          {:store, {:alias, alias_name}} -> ["Attempt to use alias ", highlight(alias_name)]
+          :default -> ["Attempt to use ", highlight("schema default")]
         end
 
       Confispex.ANSI.format_type_cast_error(details, 2, alias_msg)
@@ -177,15 +177,15 @@ defmodule Confispex.ANSI do
   defp inspect_value_text({:store, value, source_type}) do
     ending =
       case source_type do
-        :original -> nil
-        {:alias, alias_name} -> " (via #{highlight(alias_name)} alias)"
+        :original -> []
+        {:alias, alias_name} -> [" (via ", highlight(alias_name), " alias)"]
       end
 
-    "store#{ending}: #{highlight(inspect(value))}"
+    ["store", ending, ": ", highlight(inspect(value))]
   end
 
   defp inspect_value_text({:default, value, default_source}) do
-    "#{default_source} default: #{value |> inspect() |> highlight()}"
+    ["#{default_source} default: ", highlight(inspect(value))]
   end
 
   def format_type_cast_error({value, type, details}, level \\ 0, intro \\ [])
@@ -201,9 +201,9 @@ defmodule Confispex.ANSI do
         intro_content,
         leading_margin(level),
         "Error while casting ",
-        value |> inspect() |> colorize(:yellow),
+        colorize(inspect(value), :yellow),
         " to ",
-        type |> inspect() |> colorize(:yellow)
+        colorize(inspect(type), :yellow)
       ]
       | details
     ]
@@ -214,8 +214,8 @@ defmodule Confispex.ANSI do
       {:nested, nested_items} ->
         [
           leading_margin(level + 1),
-          "Casting nested elements failed: \n" |> colorize(:light_red),
-          Enum.map_intersperse(nested_items, "\n", &format_type_cast_error(&1, level + 2))
+          colorize("Casting nested elements failed: \n", :light_red),
+          Enum.map_intersperse(nested_items, "\n", &format_type_cast_error(&1, level + 2, []))
         ]
 
       {action, error} ->
@@ -238,8 +238,31 @@ defmodule Confispex.ANSI do
   end
 
   defp colorize(string, color) do
-    IO.ANSI.format_fragment([color, string, :reset])
+    {:color, color, string}
   end
+
+  def apply_colors(data, emit_ansi?) do
+    data
+    |> List.flatten()
+    |> Enum.map(&do_apply_color(&1, emit_ansi?))
+  end
+
+  defp do_apply_color({:color, color, content}, emit_ansi?) when is_binary(content) do
+    IO.ANSI.format_fragment([color, content, :reset], emit_ansi?)
+  end
+
+  defp do_apply_color({:color, color, content}, emit_ansi?) when is_list(content) do
+    [
+      IO.ANSI.format_fragment([color], emit_ansi?),
+      Enum.map(content, &do_apply_color(&1, emit_ansi?)),
+      IO.ANSI.format_fragment([:reset], emit_ansi?)
+    ]
+  end
+
+  defp do_apply_color(value, _emit_ansi?) when is_binary(value), do: value
+
+  defp do_apply_color(value, emit_ansi?) when is_list(value),
+    do: Enum.map(value, &do_apply_color(&1, emit_ansi?))
 
   defp leading_margin(level) do
     List.duplicate("   ", level)

@@ -213,7 +213,21 @@ defmodule Confispex.Type do
   - `:validation` and `:parsing` prefixes - light red
   - `:nested` header - light red
   """
+
+  @typedoc """
+  A type specification for casting configuration values.
+
+  Can be either:
+  - A module implementing `Confispex.Type` behavior (e.g., `Confispex.Type.String`)
+  - A tuple with module and options (e.g., `{Confispex.Type.Integer, scope: :positive}`)
+  """
   @type type_reference :: module() | {module(), opts :: Keyword.t()}
+
+  @typedoc """
+  Structured error details returned when type casting fails.
+
+  Supports nested structures with formatting hints for terminal output.
+  """
   @type error_details :: [
           String.t()
           | error_details()
