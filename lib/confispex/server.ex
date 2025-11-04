@@ -69,6 +69,10 @@ defmodule Confispex.Server do
     {:reply, report, state}
   end
 
+  def handle_call(:get_state, _from, state) do
+    {:reply, state, state}
+  end
+
   @impl true
   def handle_cast({:init, params}, _state) do
     state = init_state(params)

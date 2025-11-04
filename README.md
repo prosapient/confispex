@@ -122,6 +122,19 @@ or
 Confispex.report(:detailed)
 ```
 
+### Verify Schema in CI/CD
+
+Ensure all accessed variables are defined in your schema:
+
+```bash
+# In your CI pipeline, check all environments
+$ MIX_ENV=dev mix confispex.check
+$ MIX_ENV=test mix confispex.check
+$ MIX_ENV=prod mix confispex.check
+```
+
+This prevents runtime issues caused by accessing undocumented configuration variables.
+
 ## Documentation
 
 - **Full Documentation:** https://hexdocs.pm/confispex/

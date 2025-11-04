@@ -198,3 +198,35 @@ and run report with valid values:
 LOG_LEVEL=info CONTACT_US_EMAILS=myemail1@example.com,myemail2@host DB_URL=postgres://user:pwd@localhost:5432/db_name MIX_ENV=prod mix confispex.report --mode=detailed
 ```
 ![state 2](images/state2.png)
+
+## Verifying Schema Completeness
+
+To ensure all variables accessed in your application are properly documented in the schema,
+use `mix confispex.check` in your CI/CD pipeline:
+
+```bash
+# Check that all Confispex.get/1 calls reference variables in schema
+$ MIX_ENV=prod mix confispex.check
+✓ All configuration variables are defined in schema
+```
+
+If you access a variable that's not in your schema, the check will fail:
+
+```bash
+$ MIX_ENV=prod mix confispex.check
+✗ Found variables missing from schema:
+  - UNDOCUMENTED_VAR
+** (Mix.Error) Configuration check failed: 1 variable(s) not defined in schema
+```
+
+**Best Practice:** Run this check for all environments in CI, since context filters
+may cause different variables to be available in different environments:
+
+```bash
+MIX_ENV=dev mix confispex.check
+MIX_ENV=test mix confispex.check
+MIX_ENV=prod mix confispex.check
+```
+
+This prevents developers from forgetting to document new variables when adding them
+to `config/runtime.exs`.
