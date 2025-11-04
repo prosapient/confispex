@@ -36,7 +36,7 @@ defmodule Confispex.MixProject do
   end
 
   defp copy_images(_) do
-    File.cp_r("docs/images", "doc/images", fn _source, _destination -> true end)
+    File.cp_r("docs/images", "doc/images", on_conflict: fn _source, _destination -> true end)
   end
 
   def application do
