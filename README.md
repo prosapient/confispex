@@ -5,20 +5,6 @@ A tool which allows defining specs for runtime configuration, cast values accord
 [![Hex.pm](https://img.shields.io/hexpm/v/confispex.svg)](https://hex.pm/packages/confispex)
 [![Documentation](https://img.shields.io/badge/docs-hexpm-blue.svg)](https://hexdocs.pm/confispex)
 
-## Installation
-
-Add `confispex` to your list of dependencies in `mix.exs`:
-
-```elixir
-def deps do
-  [
-    {:confispex, "~> 1.1"}
-  ]
-end
-```
-
-Documentation: https://hexdocs.pm/confispex/
-
 ## Features
 
 - **Type-safe configuration** - cast environment variables to proper Elixir types with validation
@@ -46,9 +32,21 @@ So, how `confispex` helps with issues mentioned above?
 
 Elixir 1.11 allows running application code in `runtime.exs`, so `confispex` uses a schema defined in your application code to cast values to Elixir terms. Errors should not be reported immediately, but only when you ask for a report. If `confispex` can't cast value from store or default value to specified type, then `nil` is returned. Think about it as an advanced wrapper around `System.get_env/1`. Also, there is a mix task to generate a `.envrc` template from schema.
 
-## Examples
+## Usage
 
-### Schema
+### Installation
+
+Add `confispex` to your list of dependencies in `mix.exs`:
+
+```elixir
+def deps do
+  [
+    {:confispex, "~> 1.1"}
+  ]
+end
+```
+
+### Define Schema
 
 ```elixir
 defmodule MyApp.RuntimeConfigSchema do
@@ -89,7 +87,7 @@ defmodule MyApp.RuntimeConfigSchema do
 end
 ```
 
-### Runtime config
+### Configure Runtime
 
 ```elixir
 import Config
@@ -112,7 +110,7 @@ config :tzdata,
 
 ```
 
-### Print report
+### Inspect Configuration
 
 ```
 $ mix confispex.report
