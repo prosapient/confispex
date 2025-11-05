@@ -2,12 +2,6 @@ defmodule Mix.Tasks.Confispex.CheckTest do
   use ExUnit.Case, async: false
   import ExUnit.CaptureIO
 
-  setup do
-    # Ensure app is started
-    {:ok, _} = Application.ensure_all_started(:confispex)
-    :ok
-  end
-
   describe "mix confispex.check" do
     test "exits with success when all variables are in schema" do
       defmodule AllInSchemaTest do
@@ -35,7 +29,9 @@ defmodule Mix.Tasks.Confispex.CheckTest do
           Mix.Tasks.Confispex.Check.run([])
         end)
 
-      assert output =~ "✓ All configuration variables are defined in schema"
+      assert output == """
+             ✓ All configuration variables are defined in schema
+             """
     end
 
     test "exits with error when variables are missing from schema" do
@@ -97,9 +93,11 @@ defmodule Mix.Tasks.Confispex.CheckTest do
           end
         end)
 
-      assert output =~ "✗ Found variables missing from schema:"
-      assert output =~ "- BAD_ONE"
-      assert output =~ "- BAD_TWO"
+      assert output == """
+             \e[31m\e[1m✗ Found variables missing from schema:\e[0m
+             \e[31m\e[1m  - BAD_ONE\e[0m
+             \e[31m\e[1m  - BAD_TWO\e[0m
+             """
     end
   end
 end
