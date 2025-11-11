@@ -41,7 +41,7 @@ Add `confispex` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:confispex, "~> 1.1"}
+    {:confispex, "~> 1.2"}
   ]
 end
 ```
